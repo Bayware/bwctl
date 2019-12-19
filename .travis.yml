@@ -1,0 +1,15 @@
+os: linux
+dist: bionic
+language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+addons:
+  apt:
+    packages:
+      - "shellcheck"
+install:
+  - "pip install -r ./tests/requirements-test.txt"
+script:
+  - "make ci-test"
