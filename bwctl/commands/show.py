@@ -1,8 +1,10 @@
+"""bwctl: 'show' commands implementation"""
 import json
 import sys
 from collections import OrderedDict
 
 import click
+
 from bwctl.utils.click import AliasedGroup
 from bwctl.utils.common import log_error, log_info
 from bwctl.utils.states import ObjectKind
@@ -11,7 +13,6 @@ from bwctl.utils.states import ObjectKind
 @click.group('show', cls=AliasedGroup)
 def show_cmd():
     """Show commands"""
-    pass
 
 
 @show_cmd.command('workload')
@@ -124,7 +125,7 @@ def show_processor(ctx, name, cloud, full):
         if cloud != 'all':
             processor_obj = [x for x in ctx.obj.state.get_fabric_objects(obj_kind).items()
                              if cloud in ctx.obj.state.get_fabric_object('vpc', ctx.obj.state.get_fabric_object(
-                                obj_kind, x[0])['vpc'])['cloud'] and name
+                    obj_kind, x[0])['vpc'])['cloud'] and name
                              in x[0]]
 
             # Empty result set

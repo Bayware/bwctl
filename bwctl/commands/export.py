@@ -1,6 +1,8 @@
+"""bwctl: 'leave' commands implementation"""
 import sys
 
 import click
+
 from bwctl.actions.export_spec import ExportSpec
 from bwctl.utils.click import AliasedGroup
 from bwctl.utils.common import log_error, log_ok, log_info
@@ -9,7 +11,6 @@ from bwctl.utils.common import log_error, log_ok, log_info
 @click.group('export', cls=AliasedGroup)
 def export_cmd():
     """Export commands"""
-    pass
 
 
 @export_cmd.command('fabric')
@@ -29,9 +30,8 @@ def export_fabric(ctx, filename, output_format):
     if export_spec.generate_spec():
         log_ok('Fabric configuration exported successfully')
         return True
-    else:
-        log_error('Error exporting fabric configuration')
-        sys.exit(1)
+    log_error('Error exporting fabric configuration')
+    sys.exit(1)
 
 
 if __name__ == "__main__":

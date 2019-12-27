@@ -1,7 +1,9 @@
+"""bwctl: 'update' commands implementation"""
 import sys
 from copy import deepcopy
 
 import click
+
 from bwctl.utils.click import AliasedGroup
 from bwctl.utils.common import log_error, log_info, log_warn
 from bwctl.utils.states import ObjectKind, ObjectState
@@ -10,7 +12,6 @@ from bwctl.utils.states import ObjectKind, ObjectState
 @click.group('update', cls=AliasedGroup)
 def update_cmd():
     """Update commands"""
-    pass
 
 
 @update_cmd.command('workload')

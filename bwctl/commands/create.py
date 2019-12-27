@@ -1,9 +1,11 @@
+"""bwctl: 'create' commands implementation"""
 import os
 import sys
 from copy import deepcopy
 
 import click
 import yaml
+
 from bwctl.actions.batch_spec import BatchSpec
 from bwctl.actions.ssh_config import SshConfig
 from bwctl.session.credentials import Credentials
@@ -15,7 +17,6 @@ from bwctl.utils.states import ObjectStatus, ObjectState, ObjectKind
 @click.group('create', cls=AliasedGroup)
 def create_cmd():
     """Create commands"""
-    pass
 
 
 @create_cmd.command(ObjectKind.BATCH.value)
@@ -238,7 +239,7 @@ def create_batch(ctx, filename, input_format, dry_run):
                     # Check for existing orch of same type in same fabric
                     orch_list = [x for x in temp_node_state.get_fabric_objects(obj_kind.value, fabric).items() if
                                  orch_type in x[1]['type'] and temp_node_state.check_object_status(x[-1],
-                                 ObjectStatus.SUCCESS) and node != x[0]]
+                                                                                                   ObjectStatus.SUCCESS) and node != x[0]]
 
                     if orch_list:
                         log_warn("Orchestrator of type {0} exists in current fabric. "

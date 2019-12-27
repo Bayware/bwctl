@@ -1,6 +1,8 @@
+"""bwctl: 'set' commands implementation"""
 import sys
 
 import click
+
 from bwctl.utils.click import AliasedGroup
 from bwctl.utils.common import log_error, log_ok, log_warn
 from bwctl.utils.states import ObjectStatus, ObjectState
@@ -9,7 +11,6 @@ from bwctl.utils.states import ObjectStatus, ObjectState
 @click.group(name='set', cls=AliasedGroup)
 def set_cmd():
     """Set commands"""
-    pass
 
 
 @set_cmd.command('fabric')
