@@ -1,0 +1,24 @@
+{% if fabric in state['fabric'] %}
+{% for vpc_key, vpc_val in state['fabric'][fabric]['vpc'].items() %}
+{% if 'azr' in vpc_val['cloud'] %}
+// VPC: {{ vpc_key }}
+module "networking-{{ fabric }}-vpc{{ vpc_val['index'] }}-azr" {
+  source = "../modules/networking-azr"
+  environment = "{{ state['fabric'][fabric]['config']['companyName'] }}"
+  location = "${var.azr_vpc{{ vpc_val['index'] }}_location}"
+  network_ip_cidr_range = "${var.azr_vpc_cidr}"
+  orchestrator_subnet_cidr = "${var.azr_orchestrator_subnet_cidr}"
+  processor_subnet_cidr = "${var.azr_processor_subnet_cidr}"
+  workload_subnet_cidr = "${var.azr_workload_subnet_cidr}"
+  resource_group_name = "${var.azr_resource_group_name}"
+  network_enable = "${var.azr_vpc{{ vpc_val['index'] }}_network_enable}"
+  orchestrator_subnet_enable = "${var.azr_vpc{{ vpc_val['index'] }}_orchestrator_subnet_enable}"
+  workload_subnet_enable = "${var.azr_vpc{{ vpc_val['index'] }}_workload_subnet_enable}"
+  processor_subnet_enable = "${var.azr_vpc{{ vpc_val['index'] }}_processor_subnet_enable}"
+  prefix = "{{ vpc_key }}"
+  suffix = ""
+}
+
+{% endif %}
+{% endfor %}
+{% endif %}

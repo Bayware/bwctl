@@ -1,0 +1,25 @@
+{% if fabric in state['fabric'] %}
+{% for vpc_key, vpc_val in state['fabric'][fabric]['vpc'].items() %}
+{% if 'gcp' in vpc_val['cloud'] %}
+// VPC: {{ vpc_key }}
+module "security-{{ fabric }}-vpc{{ vpc_val['index'] }}-gcp" {
+  source = "../modules/security-gcp"
+  providers = {
+    google = "google.{{ vpc_val['region'] }}"
+  }
+  environment = "{{ state['fabric'][fabric]['config']['companyName'] }}"
+  network = "${var.gcp_vpc{{ vpc_val['index'] }}_network_enable == "true" ? module.networking-{{ fabric }}-vpc{{ vpc_val['index'] }}-gcp.network : var.gcp_vpc{{ vpc_val['index'] }}_network_name}"
+  enable = "${var.gcp_vpc{{ vpc_val['index'] }}_enable}"
+  prefix = "{{ vpc_key }}"
+  suffix = ""
+  production = "${var.production}"
+  bastion_ip = "${var.bastion_ip}"
+  orchestrator_subnet_cidr = "${var.gcp_orchestrator_subnet_cidr}"
+  workload_subnet_cidr = "${var.gcp_workload_subnet_cidr}"
+  processor_subnet_cidr = "${var.gcp_processor_subnet_cidr}"
+  all_processors_cidr = [{% if state['fabric'][fabric]['processor'].items() %}{% for node_key, node_val in state['fabric'][fabric]['processor'].items() if 'ip' in state['fabric'][fabric]['processor'][node_key]['properties'] %}"{{ state['fabric'][fabric]['processor'][node_key]['properties']['ip'] }}/32"{% if not loop.last %}, {% endif %}{% else %}"0.0.0.0/32"{% endfor %}{% else %}"0.0.0.0/32"{% endif %}]
+}
+
+{% endif %}
+{% endfor %}
+{% endif %}

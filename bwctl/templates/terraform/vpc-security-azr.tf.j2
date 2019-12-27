@@ -1,0 +1,23 @@
+{% if fabric in state['fabric'] %}
+{% for vpc_key, vpc_val in state['fabric'][fabric]['vpc'].items() %}
+{% if 'azr' in vpc_val['cloud'] %}
+// VPC: {{ vpc_key }}
+module "security-{{ fabric }}-vpc{{ vpc_val['index'] }}-azr" {
+  source = "../modules/security-azr"
+  environment = "{{ state['fabric'][fabric]['config']['companyName'] }}"
+  location = "${var.azr_vpc{{ vpc_val['index'] }}_location}"
+  resource_group_name = "${var.azr_resource_group_name}"
+  enable = "${var.azr_vpc{{ vpc_val['index'] }}_enable}"
+  prefix = "{{ vpc_key }}"
+  suffix = ""
+  production = "${var.production}"
+  bastion_ip = "${var.bastion_ip}"
+  orchestrator_subnet_cidr = "${var.azr_orchestrator_subnet_cidr}"
+  workload_subnet_cidr = "${var.azr_workload_subnet_cidr}"
+  processor_subnet_cidr = "${var.azr_processor_subnet_cidr}"
+  all_processors_cidr = [{% if state['fabric'][fabric]['processor'].items() %}{% for node_key, node_val in state['fabric'][fabric]['processor'].items() if 'ip' in state['fabric'][fabric]['processor'][node_key]['properties'] %}"{{ state['fabric'][fabric]['processor'][node_key]['properties']['ip'] }}/32"{% if not loop.last %}, {% endif %}{% else %}"0.0.0.0/32"{% endfor %}{% else %}"0.0.0.0/32"{% endif %}]
+}
+
+{% endif %}
+{% endfor %}
+{% endif %}

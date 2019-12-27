@@ -1,0 +1,71 @@
+{% if fabric in state['fabric'] %}
+{% for node_key, node_val in state['fabric'][fabric]['orchestrator'].items() %}
+{% if 'azr' in state['fabric'][fabric]['vpc'][node_val['vpc']]['cloud'] %}
+{% if not node_val['properties']['marketplace'] %}
+// Image: {{ node_key }}
+module "{{ node_key }}-image" {
+  source = "../modules/image-azr"
+  marketplace_enable = "false"
+  image_pattern = "${local.azr_orch_image_pattern}"
+  image_tag = "${var.image_tag}"
+  resource_group_name = "${var.azr_resource_group_name}"
+}
+
+{% endif %}
+// Node: {{ node_key }} - {{ node_val.type }}
+module "{{ node_key }}" {
+{% if not node_val['properties']['marketplace'] %}
+  source = "../modules/instance-azr"
+  image_id = "${module.{{ node_key }}-image.image_id}"
+{% else %}
+  source = "../modules/instance-azr-marketplace"
+  image_offer = "${local.azr_image_offer_id}"
+  image_sku = "${local.azr_orch_image_sku}"
+  image_publisher = "${var.azr_image_publisher}"
+{% endif %}
+  instance_enable = "true"
+  environment = "{{ state['fabric'][fabric]['config']['companyName'] }}"
+  location = "${var.azr_vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}_location}"
+  instance_type = "${var.azr_orch_instance_type}"
+  disk_size = "${var.azr_orch_instance_disk_size}"
+  disk_type = "${var.azr_orch_instance_disk_type}"
+  accelerated_networking = "${var.azr_orch_accelerated_networking}"
+  prefix = "{{ node_key }}"
+  suffix = ""
+  ansible_groups = "${var.azr_orch_ansible_groups}"
+  description = "${var.azr_orch_description} {{ node_val['index'] }}"
+  resource_group_name = "${var.azr_resource_group_name}"
+  subnet = "${var.azr_vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}_orchestrator_subnet_enable == "true" ? module.networking-{{ fabric }}-vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}-azr.orchestrator_subnet_id : var.azr_vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}_orchestrator_subnet_id}"
+  security_group = "${module.security-{{ fabric }}-vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}-azr.security_group_{% if 'controller' in node_val.type %}ctrl{% else %}orch{% endif %}}"
+  ssh_user = "${var.ssh_user}"
+  ssh_pub_key_file = "{{ pub_key }}"
+}
+
+// DNS entries
+module "{{ node_key }}-dns" {
+  source                  = "../modules/dns-aws"
+  dns_managed_zone_domain = "${var.dns_managed_zone_domain}"
+  name                    = "{{ node_key }}.{{ state['fabric'][fabric]['config']['companyName'] }}"
+  ip_address              = "${module.{{ node_key }}.public_ip}"
+  dns_enable              = "{{ node_val['properties']['dns_enabled'] }}"
+}
+{% if 'controller' in node_val.type %}
+module "{{ node_val.type }}-dns" {
+  source                  = "../modules/dns-aws"
+  dns_managed_zone_domain = "${var.dns_managed_zone_domain}"
+  name                    = "{{ node_val.type }}-{{ fabric }}.{{ state['fabric'][fabric]['config']['companyName'] }}"
+  ip_address              = "${module.{{ node_key }}.public_ip}"
+  dns_enable              = "{{ node_val['properties']['dns_enabled'] }}"
+}
+module "orchestrator-dns" {
+  source                  = "../modules/dns-aws"
+  dns_managed_zone_domain = "${var.dns_managed_zone_domain}"
+  name                    = "orchestrator-{{ fabric }}.{{ state['fabric'][fabric]['config']['companyName'] }}"
+  ip_address              = "${module.{{ node_key }}.public_ip}"
+  dns_enable              = "{{ node_val['properties']['dns_enabled'] }}"
+}
+{% endif %}
+
+{% endif %}
+{% endfor %}
+{% endif %}

@@ -1,0 +1,47 @@
+Host *
+  ServerAliveInterval 60
+
+{% for fabric, fabric_val in state['fabric'].items() %}
+{% set proxy_list = {} %}
+{% for vpc in fabric_val['vpc'] %}
+{% for orchestrator, orchestrator_val in fabric_val['orchestrator'].items() %}
+{% if orchestrator_val['vpc'] == vpc and not (orchestrator_val['status'] == 'failed' and orchestrator_val['state'] == 'created') %}
+Host {{ orchestrator }} {{ orchestrator }}.{{ fabric_val['config']['companyName'] }}.{{ hosted_zone }}
+  User {{ username }}
+  Hostname {{ orchestrator_val['properties']['ip'] }}
+  IdentityFile {% if fabric_val['config']['sshKeys']['privateKey'] %}{{ fabric_val['config']['sshKeys']['privateKey'] }}{% else %}~/.bwctl/{{ fabric }}/ssh_key
+{% endif %}
+{% endif %}
+{% endfor %}
+{% set processor_index = 0 %}
+{% for processor, processor_val in fabric_val['processor'].items() %}
+{% if processor_val['vpc'] == vpc and not (processor_val['status'] == 'failed' and processor_val['state'] == 'created') %}
+{% set processor_index = processor_index + 1 %}
+{% if processor_index == 1 %}
+{% if proxy_list.update({vpc: processor}) %}
+{% endif %}
+{% endif %}
+Host {{ processor }} {{ processor }}.{{ fabric_val['config']['companyName'] }}.{{ hosted_zone }}
+  User {{ username }}
+  Hostname {{ processor_val['properties']['ip'] }}
+  IdentityFile {% if fabric_val['config']['sshKeys']['privateKey'] %}{{ fabric_val['config']['sshKeys']['privateKey'] }}{% else %}~/.bwctl/{{ fabric }}/ssh_key
+{% endif %}
+{% endif %}
+{% endfor %}
+{% for workload, workload_val in fabric_val['workload'].items() %}
+{% if workload_val['vpc'] == vpc and not (workload_val['status'] == 'failed' and workload_val['state'] == 'created') %}
+Host {{ workload }} {{ workload }}.{{ fabric_val['config']['companyName'] }}.{{ hosted_zone }}
+  User {{ username }}
+  Hostname {{ workload_val['properties']['ip'] }}
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+  IdentityFile {% if fabric_val['config']['sshKeys']['privateKey'] %}{{ fabric_val['config']['sshKeys']['privateKey'] }}{% else %}~/.bwctl/{{ fabric }}/ssh_key
+{% endif %}
+{% if vpc in proxy_list %}
+  ProxyCommand ssh -q -W %h:%p {{ proxy_list[vpc] }}.{{ fabric_val['config']['companyName'] }}.{{ hosted_zone }}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% endfor %}
+{% endfor %}

@@ -1,0 +1,59 @@
+{% if fabric in state['fabric'] %}
+{% for node_key, node_val in state['fabric'][fabric]['orchestrator'].items() %}
+{% if 'aws' in state['fabric'][fabric]['vpc'][node_val['vpc']]['cloud'] %}
+// Node: {{ node_key }} - {{ node_val.type }}
+module "{{ node_key }}" {
+  source                 = "../modules/instance-aws"
+  providers = {
+    aws = "aws.{{ state['fabric'][fabric]['vpc'][node_val.vpc]['region'] }}"
+  }
+  instance_enable        = "true"
+  region                 = "${var.aws_vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}_region}"
+  instance_type          = "${var.aws_orch_instance_type}"
+  instance_disk_size     = "${var.aws_orch_instance_disk_size}"
+  instance_ami_pattern   = "${local.aws_orch_instance_ami_pattern}"
+  prefix                 = "{{ node_key }}"
+  suffix                 = ""
+  ansible_groups         = "${var.aws_orch_ansible_groups}"
+  description            = "${var.aws_orch_description} {{ node_val['index'] }}"
+  public_subnet_id       = "${var.aws_vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}_orchestrator_subnet_enable == "true" ? module.networking-{{ fabric }}-vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}-aws.orchestrator_subnet_id : var.aws_vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}_orchestrator_subnet_id}"
+  key_name               = "${module.security-{{ fabric }}-vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}-aws.key_name}"
+  key_file               = "{{ pub_key }}"
+  user_name              = "${var.ssh_user}"
+  environment            = "{{ state['fabric'][fabric]['config']['companyName'] }}"
+  vpc_id                 = "${var.aws_vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}_network_enable == "true" ? module.networking-{{ fabric }}-vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}-aws.vpc_id : var.aws_vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}_vpc_id}"
+  sg_ids                 = [
+    "${module.security-{{ fabric }}-vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}-aws.sg_orch_id}"{% if 'controller' in node_val.type %},
+    "${module.security-{{ fabric }}-vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}-aws.sg_proxy_id}"
+{% endif %}
+  ]
+}
+
+// DNS entries
+module "{{ node_key }}-dns" {
+  source                  = "../modules/dns-aws"
+  dns_managed_zone_domain = "${var.dns_managed_zone_domain}"
+  name                    = "{{ node_key }}.{{ state['fabric'][fabric]['config']['companyName'] }}"
+  ip_address              = "${module.{{ node_key }}.public_ip}"
+  dns_enable              = "{{ node_val['properties']['dns_enabled'] }}"
+}
+{% if 'controller' in node_val.type %}
+module "{{ node_val.type }}-dns" {
+  source                  = "../modules/dns-aws"
+  dns_managed_zone_domain = "${var.dns_managed_zone_domain}"
+  name                    = "{{ node_val.type }}-{{ fabric }}.{{ state['fabric'][fabric]['config']['companyName'] }}"
+  ip_address              = "${module.{{ node_key }}.public_ip}"
+  dns_enable              = "{{ node_val['properties']['dns_enabled'] }}"
+}
+module "orchestrator-dns" {
+  source                  = "../modules/dns-aws"
+  dns_managed_zone_domain = "${var.dns_managed_zone_domain}"
+  name                    = "orchestrator-{{ fabric }}.{{ state['fabric'][fabric]['config']['companyName'] }}"
+  ip_address              = "${module.{{ node_key }}.public_ip}"
+  dns_enable              = "{{ node_val['properties']['dns_enabled'] }}"
+}
+{% endif %}
+
+{% endif %}
+{% endfor %}
+{% endif %}

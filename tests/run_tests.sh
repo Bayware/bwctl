@@ -23,20 +23,21 @@ print_blu () { local i; for i in "$@"; do echo -e "${C_BLU}${i}${C_NOC}"; done }
 print_blu "\u21e8 ansible-lint information"
 ansible-lint --version
 print_blu "\u21e8 Run ansible playbooks lint check"
-# TODO: Add actual testing
+find ./ -name '*.yml' -print0 | /usr/bin/env xargs -0 -t -n1 ansible-lint -v -p --force-color -x 204  -r ./tests/ansible-lint-custom-rules/ -R
 
 print_blu "\u21e8 pylint information"
 pylint --version
 print_blu "\u21e8 Run Python lint check"
-# TODO: Add actual testing
+find ./ -name '*.py' -print0 | /usr/bin/env xargs -0 -t -n1 pylint --rcfile=./tests/pylintrc
 
 print_blu "\u21e8 shellcheck information"
 shellcheck --version
 print_blu "\u21e8 Run shell scripts lint check"
-# TODO: Add actual testing
+find ./ -name "*.sh" -print0 | /usr/bin/env xargs -0 -t -n1 shellcheck -s bash
 
 print_blu "\u21e8 yamllint information"
 yamllint --version
 print_blu "\u21e8 Run shell scripts lint check"
+find ./ -name '*.yml' -print0 | /usr/bin/env xargs -0 -t -n1 yamllint -c ./tests/yaml-lint-custom-rules/yaml_lint_custom.yml
 
 # EOF
