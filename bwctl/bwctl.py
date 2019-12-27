@@ -1,8 +1,13 @@
-import click
-import click_repl
+"""
+Bayware CLI for Service Interconnection Fabric (SIF)
+"""
 import os
 import sys
+
+import click
+import click_repl
 from pid import PidFile, PidFileAlreadyLockedError
+
 from bwctl.commands.configure import configure_cmd
 from bwctl.commands.create import create_cmd
 from bwctl.commands.delete import delete_cmd
@@ -28,7 +33,7 @@ def bwctl(ctx, version):
     # Print version
     if version:
         ctx.obj.do_version()
-        return True
+        sys.exit(0)
     # Init credentials template
     if not ctx.obj.init_credentials_template():
         log_info("Exiting...")
@@ -75,6 +80,7 @@ def main():
     bwctl.add_command(stop_cmd)
     bwctl.add_command(update_cmd)
 
+    # pylint: disable=no-value-for-parameter,unexpected-keyword-arg
     bwctl(
         obj=Session(),
         help_option_names=["-h", "--help"],
@@ -84,15 +90,15 @@ def main():
 
 
 # Handle bwctl PID locking
-pidname = 'bwctl'
-piddir = os.path.expanduser("~/.bwctl")
+PID_NAME = 'bwctl'
+PID_DIR = os.path.expanduser("~/.bwctl")
 try:
-    with PidFile(pidname, piddir=piddir) as p:
+    with PidFile(PID_NAME, piddir=PID_DIR) as p:
         main()
 except PidFileAlreadyLockedError:
     log_error('Lock detected, bwctl is already running. Exiting...')
     sys.exit(1)
 except IOError:
-    log_error('Unable to create lockfile {!r}, please check permissions. Exiting...'.format(os.path.join(piddir,
-                                                                                                         pidname)))
+    log_error('Unable to create lockfile {!r}, please check permissions. Exiting...'.format(os.path.join(PID_DIR,
+                                                                                                         PID_NAME)))
     sys.exit(1)

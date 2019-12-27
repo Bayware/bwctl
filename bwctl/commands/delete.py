@@ -1,8 +1,10 @@
+"""bwctl: 'delete' commands implementation"""
 import sys
 from copy import deepcopy
 
 import click
 import yaml
+
 from bwctl.actions.ansible import Ansible
 from bwctl.actions.batch_spec import BatchSpec
 from bwctl.actions.ssh_config import SshConfig
@@ -16,7 +18,6 @@ from bwctl.utils.states import ObjectStatus, ObjectState, ObjectKind
 @click.group('delete', cls=AliasedGroup)
 def delete_cmd():
     """Delete commands"""
-    pass
 
 
 @delete_cmd.command('batch')

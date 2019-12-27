@@ -1,6 +1,8 @@
+"""bwctl: 'leave' commands implementation"""
 import sys
 
 import click
+
 from bwctl.utils.click import AliasedGroup
 from bwctl.utils.common import log_info, log_error
 
@@ -8,7 +10,6 @@ from bwctl.utils.common import log_info, log_error
 @click.group('leave', cls=AliasedGroup)
 def leave_cmd():
     """Leave commands"""
-    pass
 
 
 @leave_cmd.command('fabric')

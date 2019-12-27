@@ -1,9 +1,11 @@
+"""bwctl: 'comfigure' commands implementation"""
 import os
 import re
 import sys
 from copy import deepcopy
 
 import click
+
 from bwctl.session.credentials import Credentials
 from bwctl.utils.click import AliasedGroup
 from bwctl.utils.common import log_error, log_ok, log_warn, log_info
@@ -13,7 +15,6 @@ from bwctl.utils.states import ObjectKind, ObjectStatus, ObjectState
 @click.group('configure', cls=AliasedGroup)
 def configure_cmd():
     """Configure commands"""
-    pass
 
 
 @configure_cmd.command('workload')

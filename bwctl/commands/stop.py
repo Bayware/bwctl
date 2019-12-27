@@ -1,7 +1,9 @@
+"""bwctl: 'stop' commands implementation"""
 import sys
 from copy import deepcopy
 
 import click
+
 from bwctl.utils.click import AliasedGroup
 from bwctl.utils.common import log_error, log_info, log_warn
 from bwctl.utils.states import ObjectKind, ObjectStatus, ObjectState
@@ -10,7 +12,6 @@ from bwctl.utils.states import ObjectKind, ObjectStatus, ObjectState
 @click.group('stop', cls=AliasedGroup)
 def stop_cmd():
     """Stop commands"""
-    pass
 
 
 @stop_cmd.command('workload')
@@ -53,10 +54,9 @@ def stop_workload(ctx, workload_name, dry_run, all_nodes):
                 ctx.obj.state.check_object_status(obj, ObjectStatus.SUCCESS):
             log_warn("{0} {1!r} is already stopped".format(obj_kind.title(), obj_name))
             return True
-        else:
-            if not ctx.obj.state.check_object_state(obj, ObjectState.STARTED):
-                log_error("Cannot stop. {0} {1!r} should be started".format(obj_kind.title(), obj_name))
-                sys.exit(1)
+        if not ctx.obj.state.check_object_state(obj, ObjectState.STARTED):
+            log_error("Cannot stop. {0} {1!r} should be started".format(obj_kind.title(), obj_name))
+            sys.exit(1)
         obj_list = [workload_name]
     elif workload_name is None:
         log_error("Cannot stop. Either {}-NAME or option --all should be used".format(obj_kind.upper()))
@@ -117,10 +117,9 @@ def stop_processor(ctx, processor_name, dry_run, all_nodes):
                 ctx.obj.state.check_object_status(obj, ObjectStatus.SUCCESS):
             log_warn("{0} {1!r} is already stopped".format(obj_kind.title(), obj_name))
             return True
-        else:
-            if not ctx.obj.state.check_object_state(obj, ObjectState.STARTED):
-                log_error("Cannot stop. {0} {1!r} should be started".format(obj_kind.title(), obj_name))
-                sys.exit(1)
+        if not ctx.obj.state.check_object_state(obj, ObjectState.STARTED):
+            log_error("Cannot stop. {0} {1!r} should be started".format(obj_kind.title(), obj_name))
+            sys.exit(1)
         obj_list = [processor_name]
     elif processor_name is None:
         log_error("Cannot stop. Either {}-NAME or option --all should be used".format(obj_kind.upper()))

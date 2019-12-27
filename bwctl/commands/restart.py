@@ -1,7 +1,9 @@
+"""bwctl: 'restart' commands implementation"""
 import sys
 from copy import deepcopy
 
 import click
+
 from bwctl.utils.click import AliasedGroup
 from bwctl.utils.common import log_error, log_info, log_warn
 from bwctl.utils.states import ObjectKind, ObjectState
@@ -10,7 +12,6 @@ from bwctl.utils.states import ObjectKind, ObjectState
 @click.group('restart', cls=AliasedGroup)
 def restart_cmd():
     """Restart commands"""
-    pass
 
 
 @restart_cmd.command('workload')

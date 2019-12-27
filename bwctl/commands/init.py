@@ -1,3 +1,4 @@
+"""bwctl: 'init' command implementation"""
 import re
 
 import click
@@ -18,7 +19,7 @@ def request_validate_str(value, regexp=None):
         regexp = "^[a-zA-Z0-9-]+$"
     pattern = re.compile(regexp)
     if not pattern.match(value):
-        log_info("Please respond with value that match pattern {1!r}".format(value, regexp))
+        log_info("Please respond with value that match pattern {!r}".format(regexp))
         return False, None
     return True, value
 
@@ -34,9 +35,9 @@ def request_config_parameter_str(message, default=None, regexp=None):
         choice = input().lower()
         if default is None and choice == "":
             continue
-        elif default is not None and choice == "":
+        if default is not None and choice == "":
             return default
-        elif request_validate_str(choice, regexp)[0]:
+        if request_validate_str(choice, regexp)[0]:
             return request_validate_str(choice, regexp)[1]
         else:
             pass
