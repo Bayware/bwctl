@@ -1,0 +1,83 @@
+---
+apiVersion: fabric.bayware.io/v2
+fabric:
+  <name>:  # Ask user to enter namespace name on clean start (default suggested value: 'default')
+    config:
+      companyName:     '<>'
+      credentialsFile: '<>'
+      sshKeys:
+        privateKey:    '<>'
+    state:  ['created', 'configured']
+    status: ['success', 'failed']
+    # End of fabric spec
+    orchestrator:
+      <name>:  # 'orchestrator node name'
+        config:
+          domain:   '<name>'
+          password: '<pwd>'  # Generate password on the fly and output it once (?) Talk to Priocom on how it's done now (any changes from sandbox times?)
+                             # What are the versions used in bastion/orch/proc/wkld? bwctl/bwctl-api Add to image metadata? Add versioning manifest?
+          username: '<name>'
+        index:      '[[:digit:]]'
+        properties: { 'node specific properties (size, etc.)' }
+        role:       ['manager', 'worker']
+        state:      ['created', 'configured']
+        status:     ['success', 'failed']
+        type:       ['controller', 'telemetry', 'events']
+        vpc:        'vpc.<name> from above'
+    processor:
+      <name>:  # 'processor node name'
+        config:
+          location:     '<location>'
+          orchestrator: '<FQDN>'
+        index:      '[[:digit:]]'
+        properties: { 'node specific properties (size, etc.)' }
+        state:      ['created', 'configured', 'started', 'stopped']
+        status:     ['success', 'failed']
+        vpc:        'vpc.<name> from above'
+    workload:
+      <name>:  # 'workload node name'
+        config:
+          location:     '<location>'
+          orchestrator: '<FQDN>'
+        index:      '[[:digit:]]'
+        properties: { 'node specific properties (size, etc.)' }
+        state:      ['created', 'configured', 'started', 'stopped']
+        status:     ['success', 'failed']
+        vpc:        'vpc.<name> from above'
+    vpc:
+      <name>:
+        cloud:      'azr|aws|gcp|all'
+        index:      '[[:digit:]]'
+        properties: { 'cloud specific properties' }
+        region:     'get from predefined set based on cloud'
+batch:
+  <name>: # 'batch.<name>'
+    processor:
+      <name>: # 'agent.<name>'
+        metadata:
+          description:  '<optional description>'
+          fabric:       'fabric.<name>'
+          name:         '<some name>'
+        spec:
+          config:
+            orchestrator: '<FQDN>'
+          properties:
+            property1: '<some value>'
+            property2: '<other value>'
+          vpc:         'vpc.<name>'
+        state: ['created', 'configured', 'started', 'stopped']
+    workload:
+      <name>: # 'engine.<name>'
+        metadata:
+          description:  '<optional description>'
+          fabric:       'fabric.<name>'
+          name:         '<some name>'
+        spec:
+          config:
+            orchestrator: '<FQDN>'
+          properties:
+            property1: '<some value>'
+            property2: '<other value>'
+          vpc:         'vpc.<name>'
+        state: ['created', 'configured', 'started', 'stopped']
+    state: ['created', 'configured', 'started', 'stopped']

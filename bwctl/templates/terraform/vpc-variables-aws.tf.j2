@@ -1,0 +1,32 @@
+{% if fabric in state['fabric'] %}
+{% for vpc_key, vpc_val in state['fabric'][fabric]['vpc'].items() %}
+{% if 'aws' in vpc_val['cloud'] %}
+// VPC: {{ vpc_key }}
+variable "aws_vpc{{ vpc_val['index'] }}_enable" {
+}
+variable "aws_vpc{{ vpc_val['index'] }}_network_enable" {
+}
+variable "aws_vpc{{ vpc_val['index'] }}_orchestrator_subnet_enable" {
+}
+variable "aws_vpc{{ vpc_val['index'] }}_workload_subnet_enable" {
+}
+variable "aws_vpc{{ vpc_val['index'] }}_processor_subnet_enable" {
+}
+variable "aws_vpc{{ vpc_val['index'] }}_region" {
+}
+variable "aws_vpc{{ vpc_val['index'] }}_orchestrator_subnet_id" {
+}
+variable "aws_vpc{{ vpc_val['index'] }}_workload_subnet_id" {
+}
+variable "aws_vpc{{ vpc_val['index'] }}_processor_subnet_id" {
+}
+variable "aws_vpc{{ vpc_val['index'] }}_vpc_id" {
+}
+variable "aws_vpc{{ vpc_val['index'] }}_sg_id" {
+}
+variable "aws_vpc{{ vpc_val['index'] }}_key_name" {
+}
+
+{% endif %}
+{% endfor %}
+{% endif %}

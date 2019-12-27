@@ -1,0 +1,16 @@
+---
+extends: default
+
+rules:
+  # Disable check for line length
+  line-length: disable
+  # Disable check for truthy variables,
+  # in case of ansible configs some variables must be set as 'yes\no'
+  # in reference to https://docs.ansible.com/
+  truthy: disable
+  # Disable checks for num of spaces after\before braces, brackets, colons, commas
+  # in order to not brake readability of code
+  braces: disable
+  brackets: disable
+  colons: disable
+  commas: disable

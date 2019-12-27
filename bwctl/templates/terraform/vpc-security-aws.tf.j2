@@ -1,0 +1,27 @@
+{% if fabric in state['fabric'] %}
+{% for vpc_key, vpc_val in state['fabric'][fabric]['vpc'].items() %}
+{% if 'aws' in vpc_val['cloud'] %}
+// VPC: {{ vpc_key }}
+module "security-{{ fabric }}-vpc{{ vpc_val['index'] }}-aws" {
+  source = "../modules/security-aws"
+  providers = {
+    aws = "aws.{{ vpc_val['region'] }}"
+  }
+  environment = "{{ state['fabric'][fabric]['config']['companyName'] }}"
+  vpc_id = "${var.aws_vpc{{ vpc_val['index'] }}_network_enable == "true" ? module.networking-{{ fabric }}-vpc{{ vpc_val['index'] }}-aws.vpc_id : var.aws_vpc{{ vpc_val['index'] }}_vpc_id}"
+  key_name = "{{ state['fabric'][fabric]['config']['companyName'] }}"
+  key_path = "{{ pub_key }}"
+  enable = "${var.aws_vpc{{ vpc_val['index'] }}_enable}"
+  prefix = "{{ vpc_key }}"
+  suffix = ""
+  production = "${var.production}"
+  bastion_ip = "${var.bastion_ip}"
+  orchestrator_subnet_cidr = "${var.aws_orchestrator_subnet_cidr}"
+  workload_subnet_cidr = "${var.aws_workload_subnet_cidr}"
+  processor_subnet_cidr = "${var.aws_processor_subnet_cidr}"
+  all_processors_cidr = [{% if state['fabric'][fabric]['processor'].items() %}{% for node_key, node_val in state['fabric'][fabric]['processor'].items() if 'ip' in state['fabric'][fabric]['processor'][node_key]['properties'] %}"{{ state['fabric'][fabric]['processor'][node_key]['properties']['ip'] }}/32"{% if not loop.last %}, {% endif %}{% else %}"0.0.0.0/32"{% endfor %}{% else %}"0.0.0.0/32"{% endif %}]
+}
+
+{% endif %}
+{% endfor %}
+{% endif %}

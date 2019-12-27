@@ -1,0 +1,81 @@
+---
+apiVersion: fabric.bayware.io/v1 # default, may be omitted
+kind: Batch
+metadata:
+  name: 'my-first-batch'
+  description: 'example of a batch file'
+spec:
+  - kind: Fabric
+    metadata:
+      description: '<optional description>'
+      name:        '<name>'
+    spec:
+      companyName: '<>'
+      credentialsFile: '<>'
+      sshKeys:
+        privateKey: '<>'
+  - kind: NodeBatch
+    metadata:
+      fabric: 'fabric.metadata.name'
+      name:   '<optional batch name>'
+    spec:
+      instanceCount: <instance count integer>
+      template:
+        - kind: Wokrload|Processor
+          metadata:
+            description: 'optional description'
+          spec:
+            config:
+              orchestrator: '<FQDN>'
+            vpc:  'vpc.<name>'
+          state: 'created' # <-- ['created', 'configured', 'started', 'stopped']
+  - kind: Orchestrator
+    metadata:
+      description: '<optional description>'
+      fabric:      'fabric.metadata.name'
+      name:        '<some name>'
+    spec:
+      role:        ['manager', 'worker']
+      type:        ['controller', 'telemetry', 'events']
+      properties:
+        marketplace:  false    # bool (optional)
+      vpc:         'vpc.<name>'
+    state: 'created' # <-- ['created', 'configured']
+  - kind: Processor
+    metadata:
+      description:  '<optional description>'
+      fabric:       'fabric.metadata.name'
+      name:         '<some name>'
+    spec:
+      config:
+        location:     '<location>'
+        orchestrator: '<FQDN>'
+      properties:
+        marketplace:  false    # bool (optional)
+      vpc:            'vpc.<name>'
+    state: 'created' # <-- ['created', 'configured', 'started', 'stopped']
+  - kind: Workload
+    metadata:
+      description:  '<optional description>'
+      fabric:       'fabric.metadata.name'
+      name:         '<some name>'
+    spec:
+      config:
+        location:     '<location>'
+        orchestrator: '<FQDN>'
+      properties:
+        marketplace:  false    # bool (optional)
+        os_type:      'ubuntu' # ['ubuntu', 'rhel'] (optional)
+      vpc:            'vpc.<name>'
+    state: 'created' # <-- ['created', 'configured', 'started', 'stopped']
+  - kind: Vpc
+    metadata:
+      description: '<optional description>'
+      fabric:      'fabric.metadata.name'
+      name:        '<name>'
+    spec:
+      cloud:       'azr|aws|gcp'
+      properties:
+        property1: '<some value>'
+        property2: '<other value>'
+      region:      'from predefined set based on cloud'

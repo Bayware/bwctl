@@ -1,0 +1,44 @@
+{% if fabric in state['fabric'] %}
+{% for vpc_key, vpc_val in state['fabric'][fabric]['vpc'].items() %}
+{% if 'gcp' in vpc_val['cloud'] %}
+{% set subnet_enable = { 'orchestrator': 'false', 'workload': 'false','processor': 'false' } %}
+{% for node_key, node_value in state['fabric'][fabric]['orchestrator'].items() %}
+{% if vpc_key in node_value['vpc'] %}
+{% if subnet_enable.update({ 'orchestrator': 'true' }) %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% for node_key, node_value in state['fabric'][fabric]['workload'].items() %}
+{% if vpc_key in node_value['vpc'] %}
+{% if subnet_enable.update({ 'workload': 'true' }) %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% for node_key, node_value in state['fabric'][fabric]['processor'].items() %}
+{% if vpc_key in node_value['vpc'] %}
+{% if subnet_enable.update({ 'processor': 'true' }) %}
+{% endif %}
+{% endif %}
+{% endfor %}
+// VPC: {{ vpc_key }}
+module "networking-{{ fabric }}-vpc{{ vpc_val['index'] }}-gcp" {
+  source = "../modules/networking-gcp"
+  providers = {
+    google = "google.{{ vpc_val['region'] }}"
+  }
+  environment = "{{ state['fabric'][fabric]['config']['companyName'] }}"
+  orchestrator_subnet_cidr = "${var.gcp_orchestrator_subnet_cidr}"
+  processor_subnet_cidr = "${var.gcp_processor_subnet_cidr}"
+  workload_subnet_cidr = "${var.gcp_workload_subnet_cidr}"
+  region = "${var.gcp_vpc{{ vpc_val['index'] }}_region}"
+  network_enable = "${var.gcp_vpc{{ vpc_val['index'] }}_network_enable}"
+  orchestrator_subnet_enable = "{{ subnet_enable.orchestrator }}"
+  workload_subnet_enable = "{{ subnet_enable.workload }}"
+  processor_subnet_enable = "{{ subnet_enable.processor }}"
+  prefix = "{{ vpc_key }}"
+  suffix = ""
+}
+
+{% endif %}
+{% endfor %}
+{% endif %}

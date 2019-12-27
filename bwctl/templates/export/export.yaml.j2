@@ -1,0 +1,94 @@
+---
+{% set property_list=['marketplace', 'os_type'] %}
+apiVersion: {{ api_version }}
+kind: Batch
+metadata:
+  name: '{{ current_fabric_name }}'
+  description: 'Fabric "{{ current_fabric_name }}" export at {{ datetimenow() }}'
+spec:
+  {# Fabric #}
+  - kind: Fabric
+    metadata:
+      description: 'optional description'
+      name: '{{ current_fabric_name }}'
+    spec:
+      companyName: {{ fabric['config']['companyName'] }}
+      credentialsFile: {{ fabric['config']['credentialsFile'] }}
+      sshKeys:
+        privateKey: {{ fabric['config']['sshKeys']['privateKey'] }}
+{% for fab_key, fab_value in fabric | dictsort %}
+  {% if fab_key == 'workload' %}
+    {# Workload #}
+    {% for workload_key, workload_val in fab_value | dictsort %}
+  - kind: Workload
+    metadata:
+      description: 'optional description'
+      fabric: '{{ current_fabric_name }}'
+      name: '{{ workload_key }}'
+    spec:
+      config:
+        orchestrator: '{{ workload_val['config']['orchestrator'] }}'
+      properties:
+      {% for property_key, property_val in workload_val['properties'] | dictsort %}
+        {% if property_key in property_list %}
+        {{ property_key }}: {{ property_val }}
+        {% endif %}
+      {% endfor %}
+      vpc: '{{ workload_val['vpc'] }}'
+    state: '{{ workload_val['state'] }}'
+    {% endfor %}
+  {% elif fab_key == 'processor' %}
+    {# Processor #}
+    {% for processor_key, processor_val in fab_value | dictsort %}
+  - kind: Processor
+    metadata:
+      description: 'optional description'
+      fabric: '{{ current_fabric_name }}'
+      name: '{{ processor_key }}'
+    spec:
+      config:
+        orchestrator: '{{ processor_val['config']['orchestrator'] }}'
+      properties:
+      {% for property_key, property_val in processor_val['properties'] | dictsort %}
+        {% if property_key in property_list %}
+        {{ property_key }}: {{ property_val }}
+        {% endif %}
+      {% endfor %}
+      vpc: '{{ processor_val['vpc'] }}'
+    state: '{{ processor_val['state'] }}'
+    {% endfor %}
+  {% elif fab_key == 'orchestrator' %}
+    {# Orchestrator #}
+    {% for orch_key, orch_val in fab_value | dictsort %}
+  - kind: Orchestrator
+    metadata:
+      description: 'optional description>'
+      fabric: '{{ current_fabric_name }}'
+      name: '{{ orch_key }}'
+    spec:
+      role: '{{ orch_val['role'] }}'
+      type: '{{ orch_val['type'] }}'
+      properties:
+      {% for property_key, property_val in orch_val['properties'] | dictsort %}
+        {% if property_key in property_list %}
+        {{ property_key }}: {{ property_val }}
+        {% endif %}
+      {% endfor %}
+      vpc: '{{ orch_val['vpc'] }}'
+    state: '{{ orch_val['state'] }}'
+    {% endfor %}
+  {% elif fab_key == 'vpc' %}
+    {# VPC #}
+    {% for vpc_key, vpc_val in fab_value | dictsort %}
+  - kind: Vpc
+    metadata:
+      description: 'optional description'
+      fabric: '{{ current_fabric_name }}'
+      name: '{{ vpc_key }}'
+    spec:
+      cloud: '{{ vpc_val['cloud'] }}'
+      properties:
+      region: '{{ vpc_val['region'] }}'
+    {% endfor %}
+  {% endif %}
+{% endfor %}

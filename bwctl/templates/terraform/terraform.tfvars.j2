@@ -1,0 +1,169 @@
+//
+// Global
+//
+environment = "poc"
+ssh_user = "{{ username }}"
+key_file = "ssh_key.pem"
+key_name = "ssh_key.pub"
+dns_managed_zone_domain = ""
+production = "false"
+bastion_ip = ""
+image_tag = ""
+image_version = ""
+all_processors_cidr = ""
+
+//
+// AWS
+//
+aws_access_key = ""
+aws_secret_key = ""
+aws_vpc_cidr = "172.20.0.0/16"
+aws_orchestrator_subnet_cidr = "172.20.0.0/24"
+aws_workload_subnet_cidr = "172.20.1.0/24"
+aws_processor_subnet_cidr = "172.20.2.0/24"
+
+// Orchestrator
+aws_orch_instance_type = "t2.xlarge"
+aws_orch_instance_disk_size = "50"
+aws_orch_ansible_groups = [ "orch", "aws" ]
+aws_orch_prefix = "c"
+aws_orch_suffix = "1"
+aws_orch_description = "orch"
+
+// Processor
+aws_proc_instance_type = "t2.medium"
+aws_proc_instance_disk_size = "30"
+aws_proc_ansible_groups = [ "proc", "aws", "aws-proc" ]
+aws_proc_description = "Proc description"
+
+// Workload
+aws_wkld_instance_type = "t2.small"
+aws_wkld_instance_disk_size = "10"
+aws_wkld_ansible_groups = [ "wkld", "aws", "aws-wkld" ]
+aws_wkld_description = "Wkld description"
+
+{% if fabric in state['fabric'] %}
+{% for vpc_key, vpc_val in state['fabric'][fabric]['vpc'].items() %}
+{% if 'aws' in vpc_val['cloud'] %}
+// VPC: {{ vpc_key }}
+aws_vpc{{ vpc_val['index'] }}_enable = "true"
+aws_vpc{{ vpc_val['index'] }}_region = "{{ vpc_val['region'] }}"
+aws_vpc{{ vpc_val['index'] }}_network_enable = "true"
+aws_vpc{{ vpc_val['index'] }}_orchestrator_subnet_enable = "true"
+aws_vpc{{ vpc_val['index'] }}_workload_subnet_enable = "true"
+aws_vpc{{ vpc_val['index'] }}_processor_subnet_enable = "true"
+aws_vpc{{ vpc_val['index'] }}_key_name = "poc_ssh_key.pub"
+aws_vpc{{ vpc_val['index'] }}_orchestrator_subnet_id = "some-value"
+aws_vpc{{ vpc_val['index'] }}_workload_subnet_id = "some-value"
+aws_vpc{{ vpc_val['index'] }}_processor_subnet_id = "some-value"
+aws_vpc{{ vpc_val['index'] }}_vpc_id = "some-value"
+aws_vpc{{ vpc_val['index'] }}_sg_id = "some-value"
+
+{% endif %}
+{% endfor %}
+{% endif %}
+
+//
+// GCP
+//
+gcp_credentials = ""
+gcp_project_name = ""
+gcp_orchestrator_subnet_cidr = "172.20.0.0/24"
+gcp_workload_subnet_cidr = "172.20.1.0/24"
+gcp_processor_subnet_cidr = "172.20.2.0/24"
+
+// Orchestrator
+gcp_orch_instance_type = "custom-2-8192"
+gcp_orch_instance_disk_size = "50"
+gcp_orch_ansible_groups = [ "orch", "gcp", "gcp-orch" ]
+gcp_orch_description = "Orchestrator description"
+
+// Processor
+gcp_proc_instance_type = "custom-2-4096"
+gcp_proc_instance_disk_size = "30"
+gcp_proc_ansible_groups = [ "proc", "gcp", "gcp-proc" ]
+gcp_proc_description = "Proc description"
+
+// Workload
+gcp_wkld_instance_type = "custom-1-2048"
+gcp_wkld_instance_disk_size = "10"
+gcp_wkld_ansible_groups = [ "wkld", "gcp", "gcp-wkld" ]
+gcp_wkld_description = "Wkld description"
+
+{% if fabric in state['fabric'] %}
+{% for vpc_key, vpc_val in state['fabric'][fabric]['vpc'].items() %}
+{% if 'gcp' in vpc_val['cloud'] %}
+// VPC: {{ vpc_key }}
+gcp_vpc{{ vpc_val['index'] }}_region = "{{ vpc_val['region'] }}"
+gcp_vpc{{ vpc_val['index'] }}_zone = "{{ vpc_val['region'] }}-b"
+gcp_vpc{{ vpc_val['index'] }}_enable = "true"
+gcp_vpc{{ vpc_val['index'] }}_network_enable = "true"
+gcp_vpc{{ vpc_val['index'] }}_orchestrator_subnet_enable = "true"
+gcp_vpc{{ vpc_val['index'] }}_workload_subnet_enable = "true"
+gcp_vpc{{ vpc_val['index'] }}_processor_subnet_enable = "true"
+gcp_vpc{{ vpc_val['index'] }}_network_name = "some-name"
+gcp_vpc{{ vpc_val['index'] }}_subnet_name = "some-name"
+gcp_vpc{{ vpc_val['index'] }}_orchestrator_subnet_id = "some-name"
+gcp_vpc{{ vpc_val['index'] }}_workload_subnet_id = "some-name"
+gcp_vpc{{ vpc_val['index'] }}_processor_subnet_id = "some-name"
+
+{% endif %}
+{% endfor %}
+{% endif %}
+
+//
+// Azure
+//
+azr_subscription_id = ""
+azr_client_id = ""
+azr_client_secret = ""
+azr_tennant_id = ""
+azr_resource_group_name = ""
+azr_vpc_cidr = "172.20.0.0/16"
+azr_orchestrator_subnet_cidr = "172.20.0.0/24"
+azr_workload_subnet_cidr = "172.20.1.0/24"
+azr_processor_subnet_cidr = "172.20.2.0/24"
+azr_image_publisher = "bayware"
+
+// Orchestrator
+azr_orch_instance_type = "Standard_D8s_v3"
+azr_orch_instance_disk_size = "50"
+azr_orch_instance_disk_type = "Standard_LRS"
+azr_orch_ansible_groups = [ "orch", "azr", "azr-orch" ]
+azr_orch_description = "Orchestrator description"
+azr_orch_accelerated_networking = true
+
+// Processor
+azr_proc_instance_type = "Standard_B2s"
+azr_proc_instance_disk_size = "32"
+azr_proc_instance_disk_type = "Standard_LRS"
+azr_proc_ansible_groups = [ "proc", "azr", "azr-proc" ]
+azr_proc_description = "Proc description"
+azr_proc_accelerated_networking = false
+
+// Workload
+azr_wkld_instance_type = "Standard_B1ms"
+azr_wkld_instance_disk_size = "32"
+azr_wkld_instance_disk_type = "Standard_LRS"
+azr_wkld_ansible_groups = [ "wkld", "azr", "azr-wkld" ]
+azr_wkld_description = "Wkld description"
+azr_wkld_accelerated_networking = false
+
+{% if fabric in state['fabric'] %}
+{% for vpc_key, vpc_val in state['fabric'][fabric]['vpc'].items() %}
+{% if 'azr' in vpc_val['cloud'] %}
+// VPC: {{ vpc_key }}
+azr_vpc{{ vpc_val['index'] }}_location = "{{ vpc_val['region'] }}"
+azr_vpc{{ vpc_val['index'] }}_enable = "true"
+azr_vpc{{ vpc_val['index'] }}_network_enable = "true"
+azr_vpc{{ vpc_val['index'] }}_orchestrator_subnet_enable = "true"
+azr_vpc{{ vpc_val['index'] }}_workload_subnet_enable = "true"
+azr_vpc{{ vpc_val['index'] }}_processor_subnet_enable = "true"
+azr_vpc{{ vpc_val['index'] }}_subnet_name = "some-name"
+azr_vpc{{ vpc_val['index'] }}_orchestrator_subnet_id = "some-value"
+azr_vpc{{ vpc_val['index'] }}_workload_subnet_id = "some-value"
+azr_vpc{{ vpc_val['index'] }}_processor_subnet_id = "some-value"
+
+{% endif %}
+{% endfor %}
+{% endif %}

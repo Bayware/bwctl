@@ -1,0 +1,332 @@
+{% if cloud_storage['terraform']['enabled'] %}
+terraform {
+  backend "s3" {
+    bucket = "{{ cloud_storage['terraform']['bucket'] }}"
+    key = "{{ fabric_manager['id'] }}/{{ fabric }}/terraform.tfstate"
+    region = "{{ cloud_storage['terraform']['region'] }}"
+    encrypt = true
+    # https://www.terraform.io/docs/configuration/terraform.html#description
+    # No value within the terraform block can use interpolations. The terraform block is loaded very early in the execution of Terraform and interpolations are not yet available.
+    #access_key = "${var.aws_access_key}"
+    #secret_key = "${var.aws_secret_key}"
+  }
+}
+
+{% endif %}
+
+locals {
+  image_suffix = "${var.image_tag == "unstable" ? "unstable-v" : "v"}"
+  gcp_orch_image_family = "bayware-c1-3-${local.image_suffix}${var.image_version}"
+  gcp_wkld_image_family = "bayware-wkld-${local.image_suffix}${var.image_version}"
+  gcp_proc_image_family = "bayware-proc-${local.image_suffix}${var.image_version}"
+  azr_orch_image_pattern = "bayware-c1-3-v${var.image_version}"
+  azr_proc_image_pattern = "bayware-proc-v${var.image_version}"
+  azr_wkld_image_pattern = "bayware-wkld-v${var.image_version}"
+  aws_orch_instance_ami_pattern = "bayware-c1-3-${local.image_suffix}${var.image_version}-"
+  aws_proc_instance_ami_pattern = "bayware-proc-${local.image_suffix}${var.image_version}-"
+  aws_wkld_instance_ami_pattern = "bayware-wkld-${local.image_suffix}${var.image_version}-"
+  azr_image_offer_id = "bayware-service-interconnection-fabric-azure-v1"
+  azr_orch_image_sku = "bayware-interconnection-fabric-orchestrator-azr"
+  azr_proc_image_sku = "bayware-interconnection-fabric-processor-node-azr"
+  azr_wkld_image_sku = "bayware-interconnection-fabric-workload-node-azr"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "us-west-1"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "ap-northeast-1"
+  alias      = "ap-northeast-1"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "ap-northeast-2"
+  alias      = "ap-northeast-2"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "ap-south-1"
+  alias      = "ap-south-1"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "ap-southeast-1"
+  alias      = "ap-southeast-1"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "ap-southeast-2"
+  alias      = "ap-southeast-2"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "ca-central-1"
+  alias      = "ca-central-1"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "eu-central-1"
+  alias      = "eu-central-1"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "eu-north-1"
+  alias      = "eu-north-1"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "eu-west-1"
+  alias      = "eu-west-1"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "eu-west-2"
+  alias      = "eu-west-2"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "eu-west-3"
+  alias      = "eu-west-3"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "sa-east-1"
+  alias      = "sa-east-1"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "us-east-1"
+  alias      = "us-east-1"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "us-east-2"
+  alias      = "us-east-2"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "us-west-1"
+  alias      = "us-west-1"
+}
+
+provider "aws" {
+{% if not aws_ec2_role %}
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+{% endif %}
+  region     = "us-west-2"
+  alias      = "us-west-2"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "asia-east1"
+  alias       = "asia-east1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "asia-east2"
+  alias       = "asia-east2"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "asia-northeast1"
+  alias       = "asia-northeast1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "asia-northeast2"
+  alias       = "asia-northeast2"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "asia-south1"
+  alias       = "asia-south1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "asia-southeast1"
+  alias       = "asia-southeast1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "australia-southeast1"
+  alias       = "australia-southeast1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "europe-north1"
+  alias       = "europe-north1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "europe-west1"
+  alias       = "europe-west1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "europe-west2"
+  alias       = "europe-west2"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "europe-west3"
+  alias       = "europe-west3"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "europe-west4"
+  alias       = "europe-west4"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "europe-west6"
+  alias       = "europe-west6"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "northamerica-northeast1"
+  alias       = "northamerica-northeast1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "southamerica-east1"
+  alias       = "southamerica-east1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "us-central1"
+  alias       = "us-central1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "us-east1"
+  alias       = "us-east1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "us-east4"
+  alias       = "us-east4"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "us-west1"
+  alias       = "us-west1"
+}
+
+provider "google" {
+  credentials = "${file(var.gcp_credentials)}"
+  project     = "${var.gcp_project_name}"
+  region      = "us-west2"
+  alias       = "us-west2"
+}
+
+provider "azurerm" {
+  subscription_id = "${var.azr_subscription_id}"
+  client_id       = "${var.azr_client_id}"
+  client_secret   = "${var.azr_client_secret}"
+  tenant_id       = "${var.azr_tennant_id}"
+  skip_provider_registration = "true"
+}

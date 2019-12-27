@@ -1,0 +1,46 @@
+{% if fabric in state['fabric'] %}
+{% for node_key, node_val in state['fabric'][fabric]['processor'].items() %}
+{% if 'gcp' in state['fabric'][fabric]['vpc'][node_val['vpc']]['cloud'] %}
+// Node: {{ node_key }}
+module "{{ node_key }}" {
+  source = "../modules/instance-gcp"
+  providers = {
+    google = "google.{{ state['fabric'][fabric]['vpc'][node_val.vpc]['region'] }}"
+  }
+  instance_enable = "true"
+  environment = "{{ state['fabric'][fabric]['config']['companyName'] }}"
+  zone = "${var.gcp_vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}_zone}"
+  instance_type = "${var.gcp_proc_instance_type}"
+  disk_size = "${var.gcp_proc_instance_disk_size}"
+  image = "${local.gcp_proc_image_family}"
+  project = "${var.gcp_project_name}"
+  prefix = "{{ node_key }}"
+  suffix = ""
+  ansible_groups = "${var.gcp_proc_ansible_groups}"
+  description = "${var.gcp_proc_description} {{ node_val['index'] }}"
+  subnet = "${var.gcp_vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}_processor_subnet_enable == "true" ? module.networking-{{ fabric }}-vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}-gcp.processor_subnet_id : var.gcp_vpc{{ state['fabric'][fabric]['vpc'][node_val['vpc']]['index'] }}_processor_subnet_id}"
+  ssh_user = "${var.ssh_user}"
+  ssh_pub_key_file = "{{ pub_key }}"
+  firewall_tags = [
+    "firewall-ssh-bastion-{{ state['fabric'][fabric]['config']['companyName'] }}",
+    "firewall-icmp-bastion-{{ state['fabric'][fabric]['config']['companyName'] }}",
+    "firewall-ssh-all-{{ state['fabric'][fabric]['config']['companyName'] }}",
+    "firewall-icmp-all-{{ state['fabric'][fabric]['config']['companyName'] }}",
+    "firewall-proc-ipsec-{{ state['fabric'][fabric]['config']['companyName'] }}",
+    "firewall-proc-ipsec-proc-traffic-{{ state['fabric'][fabric]['config']['companyName'] }}",
+    "firewall-proc-icmp-traffic-{{ state['fabric'][fabric]['config']['companyName'] }}"
+  ]
+}
+
+// DNS entry
+module "{{ node_key }}-dns" {
+  source                  = "../modules/dns-aws"
+  dns_managed_zone_domain = "${var.dns_managed_zone_domain}"
+  name                    = "{{ node_key }}.{{ state['fabric'][fabric]['config']['companyName'] }}"
+  ip_address              = "${module.{{ node_key }}.public_ip}"
+  dns_enable              = "{{ node_val['properties']['dns_enabled'] }}"
+}
+
+{% endif %}
+{% endfor %}
+{% endif %}
