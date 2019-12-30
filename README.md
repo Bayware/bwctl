@@ -2,7 +2,8 @@
 
 [![Build Status](https://travis-ci.org/Bayware/bwctl.svg?branch=master)](https://travis-ci.org/Bayware/bwctl) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code-of-conduct.md) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-Bayware CLI infrastructure automation tool.
+Bayware CLI infrastructure automation tool for Service Interconnection Fabric (SIF).
+This is wrapper for [bwctl-resources](https://github.com/Bayware/bwctl-resources).
 
 ## Getting Started
 
