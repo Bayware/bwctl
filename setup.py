@@ -20,7 +20,7 @@ requires = [
     'boto3==1.9.180',
     'Click==7.0',
     'click-repl==0.1.6',
-    'jinja2==2.10.1',
+    'jinja2==2.11.3',
     'pid==2.2.5',
     'psutil==5.6.3',
     'pyyaml==5.1',
