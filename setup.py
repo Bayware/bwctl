@@ -23,7 +23,7 @@ requires = [
     'jinja2==2.10.1',
     'pid==2.2.5',
     'psutil==5.6.3',
-    'pyyaml==5.1',
+    'pyyaml==5.4',
     'requests==2.21.0',
     'sh==1.12.14'
 ]
